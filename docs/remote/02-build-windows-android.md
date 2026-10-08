@@ -226,6 +226,17 @@ keytool -genkey -v -keystore ~/remote-release.jks -keyalg RSA -keysize 2048 -val
 
 然后在 `flutter/android/key.properties` 中配置（这个文件和 `.jks` 都不要提交到 GitHub）。
 
+CI 签名：`remote-build.yml` 出包后会用 `r0adkll/sign-android-release` 重新签名，只要在仓库 Settings → Secrets and variables → Actions 里配好下面四个 secret，不用改工作流：
+
+| Secret | 内容 |
+|---|---|
+| `ANDROID_SIGNING_KEY` | `.jks` 文件的 base64（`base64 -w0 remote-release.jks`） |
+| `ANDROID_ALIAS` | 生成 keystore 时的 `-alias` |
+| `ANDROID_KEY_STORE_PASSWORD` | keystore 密码 |
+| `ANDROID_KEY_PASSWORD` | key 密码（keytool 默认与 keystore 密码相同） |
+
+四个 secret 都没配时，CI 发布的是 debug 签名的 APK。keystore 要长期保存，换了 keystore 的 APK 在手机上必须先卸载旧版才能安装。
+
 只改界面时，Rust 库编一次后，在 `flutter` 目录用 `flutter run`（手机开 USB 调试）热重载即可。
 
 ## 4. 仓库结构速览（Fork 后要改的地方）
@@ -242,7 +253,7 @@ keytool -genkey -v -keystore ~/remote-release.jks -keyalg RSA -keysize 2048 -val
 | Flutter 界面 | `flutter/lib/`：`mobile/pages/`（手机端：`home_page`、`connection_page`、`remote_page`、`server_page`、`settings_page` 等）、`desktop/pages/`（电脑端）、`common/`、`models/` |
 | Rust ↔ Dart 接口 | `src/flutter_ffi.rs`（改了要重新生成桥接代码） |
 | 隐私模式（后续阶段） | `src/privacy_mode.rs` 与 `src/privacy_mode/` |
-| Android 包名 | `flutter/android/app/build.gradle`：`applicationId "com.carriez.flutter_hbb"`（改名后才能和官方 RustDesk 同时安装） |
+| Android 包名 | `flutter/android/app/build.gradle`：`applicationId "com.starared.rustdesk"`（已改；不能和官方 RustDesk 同名，否则手机安全扫描会按“签名不符的篡改版”报毒） |
 | 构建脚本 | `build.py`（桌面）、`flutter/build_android_deps.sh`、`flutter/ndk_*.sh`（Android） |
 | CI | `.github/workflows/flutter-build.yml` |
 
