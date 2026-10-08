@@ -99,7 +99,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.starared.rustdesk"
+        applicationId "com.starared.xingkong"
         minSdkVersion 22
         targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()

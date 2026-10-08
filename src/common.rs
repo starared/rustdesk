@@ -1076,6 +1076,10 @@ pub fn get_app_name() -> String {
     hbb_common::config::APP_NAME.read().unwrap().clone()
 }
 
+// User-facing name only. APP_NAME stays ASCII because it names the Windows
+// service, registry keys, install dir and config dir.
+pub const APP_DISPLAY_NAME: &str = "星控";
+
 #[inline]
 pub fn is_rustdesk() -> bool {
     hbb_common::config::APP_NAME.read().unwrap().eq("RustDesk")
