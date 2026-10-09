@@ -226,6 +226,17 @@ keytool -genkey -v -keystore ~/remote-release.jks -keyalg RSA -keysize 2048 -val
 
 然后在 `flutter/android/key.properties` 中配置（这个文件和 `.jks` 都不要提交到 GitHub）。
 
+CI 签名：`remote-build.yml` 出包后会用 `r0adkll/sign-android-release` 重新签名，只要在仓库 Settings → Secrets and variables → Actions 里配好下面四个 secret，不用改工作流：
+
+| Secret | 内容 |
+|---|---|
+| `ANDROID_SIGNING_KEY` | `.jks` 文件的 base64（`base64 -w0 remote-release.jks`） |
+| `ANDROID_ALIAS` | 生成 keystore 时的 `-alias` |
+| `ANDROID_KEY_STORE_PASSWORD` | keystore 密码 |
+| `ANDROID_KEY_PASSWORD` | key 密码（keytool 默认与 keystore 密码相同） |
+
+四个 secret 都没配时，CI 发布的是 debug 签名的 APK。keystore 要长期保存，换了 keystore 的 APK 在手机上必须先卸载旧版才能安装。
+
 只改界面时，Rust 库编一次后，在 `flutter` 目录用 `flutter run`（手机开 USB 调试）热重载即可。
 
 ## 4. 仓库结构速览（Fork 后要改的地方）
@@ -237,12 +248,12 @@ keytool -genkey -v -keystore ~/remote-release.jks -keyalg RSA -keysize 2048 -val
 | **默认 ID 服务器** | `libs/hbb_common/src/config.rs`：`pub const RENDEZVOUS_SERVERS: &[&str] = &["rs-ny.rustdesk.com"];` |
 | **默认服务器公钥** | 同文件：`pub const RS_PUB_KEY: &str = "OeVuKk5n...";` 换成你的 `id_ed25519.pub` |
 | 默认端口 | 同文件：`RENDEZVOUS_PORT = 21116`、`RELAY_PORT = 21117` |
-| 应用名 | 同文件：`APP_NAME`（默认 `"RustDesk"`），以及 `Cargo.toml` 中的 `ProductName` 等 |
+| 应用名 | 显示名“星控”：Rust `src/common.rs` 的 `APP_DISPLAY_NAME`、Dart `flutter/lib/consts.dart` 的 `kAppDisplayName`、Android `AndroidManifest.xml` / `strings.xml`、Windows `Runner.rc`。`APP_NAME` 保持 `"RustDesk"` 不动：它是 Windows 服务名、注册表键、安装目录和配置目录名，改成中文会装不上 |
 | 运行时自定义服务器 | 客户端设置项 `custom-rendezvous-server`、`relay-server`、`key`；Windows 还支持把 exe 命名为 `rustdesk-host=域名,key=公钥.exe` 自动带入（`src/custom_server.rs`） |
 | Flutter 界面 | `flutter/lib/`：`mobile/pages/`（手机端：`home_page`、`connection_page`、`remote_page`、`server_page`、`settings_page` 等）、`desktop/pages/`（电脑端）、`common/`、`models/` |
 | Rust ↔ Dart 接口 | `src/flutter_ffi.rs`（改了要重新生成桥接代码） |
 | 隐私模式（后续阶段） | `src/privacy_mode.rs` 与 `src/privacy_mode/` |
-| Android 包名 | `flutter/android/app/build.gradle`：`applicationId "com.carriez.flutter_hbb"`（改名后才能和官方 RustDesk 同时安装） |
+| Android 包名 | `flutter/android/app/build.gradle`：`applicationId "com.starared.xingkong"`（已改；不能和官方 RustDesk 同名，否则手机安全扫描会按“签名不符的篡改版”报毒） |
 | 构建脚本 | `build.py`（桌面）、`flutter/build_android_deps.sh`、`flutter/ndk_*.sh`（Android） |
 | CI | `.github/workflows/flutter-build.yml` |
 
