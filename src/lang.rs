@@ -276,6 +276,8 @@ pub fn translate_locale(name: String, locale: &str) -> String {
                     }
                 }
             }
+        } else if !name.starts_with("upgrade_rustdesk_server_pro") && name != "powered_by_me" {
+            s = s.replace("RustDesk", crate::APP_DISPLAY_NAME);
         }
         s
     };
