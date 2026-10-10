@@ -413,6 +413,19 @@ jobs:
         run: |
           BASE_URL=${{ env.SIGN_BASE_URL }} SECRET_KEY=${{ secrets.SIGN_SECRET_KEY }} python3 res/job.py sign_files ./SignOutput
 
+      - name: Remove stale release assets
+        # The release action only adds files, so renamed or old-version assets would pile up.
+        if: env.UPLOAD_ARTIFACT == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ids=$(gh api "repos/${{ github.repository }}/releases/tags/${{ env.TAG_NAME }}" \
+            --jq '.assets[] | select(.name | startswith("xingkong-${{ env.VERSION }}-") | not) | .id' 2>/dev/null || true)
+          for id in $ids; do
+            gh api -X DELETE "repos/${{ github.repository }}/releases/assets/$id" && echo "deleted asset $id"
+          done
+
       - name: Publish Release
         uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
         if: env.UPLOAD_ARTIFACT == 'true'
