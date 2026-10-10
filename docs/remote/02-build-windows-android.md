@@ -248,7 +248,7 @@ CI 签名：`remote-build.yml` 出包后会用 `r0adkll/sign-android-release` �
 | **默认 ID 服务器** | `libs/hbb_common/src/config.rs`：`pub const RENDEZVOUS_SERVERS: &[&str] = &["rs-ny.rustdesk.com"];` |
 | **默认服务器公钥** | 同文件：`pub const RS_PUB_KEY: &str = "OeVuKk5n...";` 换成你的 `id_ed25519.pub` |
 | 默认端口 | 同文件：`RENDEZVOUS_PORT = 21116`、`RELAY_PORT = 21117` |
-| 应用名 | 显示名“星控”：Rust `src/common.rs` 的 `APP_DISPLAY_NAME`、Dart `flutter/lib/consts.dart` 的 `kAppDisplayName`、Android `AndroidManifest.xml` / `strings.xml`、Windows `Runner.rc`。`APP_NAME` 保持 `"RustDesk"` 不动：它是 Windows 服务名、注册表键、安装目录和配置目录名，改成中文会装不上 |
+| 应用名 | 显示名“星控”：Rust `src/common.rs` 的 `APP_DISPLAY_NAME`、Dart `flutter/lib/consts.dart` 的 `kAppDisplayName`、Android `AndroidManifest.xml` / `strings.xml`、Windows `Runner.rc`。内部名 `APP_NAME`（`libs/hbb_common/src/config.rs`）为 `"XingKong"`：它是 Windows 服务名、注册表键、安装目录、exe 名和配置目录名，只能用字母数字，改成中文会装不上 |
 | 运行时自定义服务器 | 客户端设置项 `custom-rendezvous-server`、`relay-server`、`key`；Windows 还支持把 exe 命名为 `rustdesk-host=域名,key=公钥.exe` 自动带入（`src/custom_server.rs`） |
 | Flutter 界面 | `flutter/lib/`：`mobile/pages/`（手机端：`home_page`、`connection_page`、`remote_page`、`server_page`、`settings_page` 等）、`desktop/pages/`（电脑端）、`common/`、`models/` |
 | Rust ↔ Dart 接口 | `src/flutter_ffi.rs`（改了要重新生成桥接代码） |
